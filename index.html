@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第二課 我設計的智能球衣</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f6f9fc 0%, #e6f0f5 100%);
+      font-family: 'Segoe UI', 'PingFang HK', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+      padding: 2rem 1rem;
+      color: #1e3b4f;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #0f4c5c;
+      margin-bottom: 1.5rem;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 0 rgba(255,255,255,0.8);
+    }
+
+    /* 頁面切換按鈕 */
+    .page-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: #ffffff;
+      border: 2px solid #b8d4e0;
+      color: #1a5a6e;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.7rem 1.6rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 8px rgba(0, 40, 60, 0.08);
+    }
+
+    .tab-btn:hover {
+      background: #e1f0f7;
+      border-color: #7fb3c7;
+      transform: translateY(-2px);
+    }
+
+    .tab-btn.active {
+      background: #0f4c5c;
+      color: white;
+      border-color: #0f4c5c;
+      box-shadow: 0 8px 16px rgba(15, 76, 92, 0.3);
+    }
+
+    /* 頁面容器 */
+    .page {
+      display: none;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ===== 詞語卡頁面 ===== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .word-card {
+      background: #ffffff;
+      border-radius: 32px;
+      box-shadow: 0 12px 24px -8px rgba(0, 40, 60, 0.2), 0 4px 10px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem 1.3rem 1.8rem;
+      transition: all 0.2s;
+      border: 2px solid #d8e9f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .word-card:hover {
+      transform: translateY(-5px);
+      border-color: #a3cfdf;
+      box-shadow: 0 20px 30px -10px rgba(16, 80, 100, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .word-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f4c5c;
+      line-height: 1.2;
+      letter-spacing: 0.5px;
+    }
+
+    .word-icon {
+      font-size: 3.2rem;
+      line-height: 1;
+      filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.1));
+    }
+
+    .jyutping-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #e1f0f7;
+      padding: 0.5rem 1rem;
+      border-radius: 60px;
+      margin-bottom: 1rem;
+      width: fit-content;
+    }
+
+    .jyutping {
+      font-family: 'Courier New', monospace;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #105a6e;
+      background: #ffffffd6;
+      padding: 0.15rem 0.8rem;
+      border-radius: 40px;
+      letter-spacing: 1px;
+    }
+
+    .speak-btn {
+      background: #0f4c5c;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: white;
+      transition: 0.15s;
+      box-shadow: 0 4px 8px rgba(0, 60, 80, 0.3);
+      line-height: 1;
+    }
+
+    .speak-btn:hover {
+      background: #1e6e82;
+      transform: scale(1.05);
+    }
+
+    .speak-btn:active {
+      background: #093b48;
+      transform: scale(0.95);
+    }
+
+    .meaning-block {
+      margin-bottom: 1rem;
+    }
+
+    .meaning-zh {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1d5a6d;
+      background: #f4fafd;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 0.4rem;
+      border-left: 5px solid #9ac7d9;
+    }
+
+    .meaning-en {
+      font-size: 0.95rem;
+      color: #3b6579;
+      font-style: italic;
+      padding-left: 0.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .example {
+      background: #fef9e7;
+      border-radius: 18px;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      color: #2e4c5a;
+      border: 1px dashed #c7b27e;
+      margin: 0.6rem 0 0;
+      line-height: 1.5;
+    }
+
+    .example::before {
+      content: "📖 例句：";
+      font-weight: 600;
+      color: #9b7b3c;
+      font-size: 0.9rem;
+    }
+
+    /* ===== 練習共用樣式 ===== */
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .exercise-card {
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 8px 20px -6px rgba(0, 40, 60, 0.15);
+      padding: 1.6rem 1.8rem;
+      border: 2px solid #d8e9f0;
+      transition: 0.2s;
+    }
+
+    .exercise-card:hover {
+      border-color: #a3cfdf;
+    }
+
+    .exercise-word-hint {
+      font-size: 0.9rem;
+      color: #5b7e8c;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .exercise-word-hint .hint-icon {
+      font-size: 1.2rem;
+    }
+
+    .exercise-sentence {
+      font-size: 1.25rem;
+      color: #1e3b4f;
+      margin-bottom: 1rem;
+      line-height: 1.7;
+      padding: 0.5rem 0;
+    }
+
+    .exercise-sentence .blank {
+      display: inline-block;
+      min-width: 100px;
+      border-bottom: 3px solid #e09d7c;
+      text-align: center;
+      font-weight: 700;
+      color: #c44536;
+      background: #fff3e0;
+      padding: 0 0.5rem;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .option-btn {
+      background: white;
+      border: 2px solid #7fb3c7;
+      color: #135b70;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.5rem 1.4rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .option-btn:hover {
+      background: #d9eef8;
+      border-color: #0f4c5c;
+      transform: scale(1.03);
+    }
+
+    .option-btn.selected-correct {
+      background: #b9dfc7;
+      border-color: #2d7a4b;
+      color: #174d2b;
+      font-weight: 700;
+      box-shadow: 0 0 0 3px rgba(45, 122, 75, 0.15);
+    }
+
+    .option-btn.selected-wrong {
+      background: #f8d7da;
+      border-color: #b02a37;
+      color: #8b1e2b;
+      text-decoration: line-through;
+      opacity: 0.8;
+    }
+
+    .classifier-exercise .option-btn {
+      background: #eef7ed;
+      border-color: #8bb38b;
+      color: #2b5e2b;
+    }
+
+    .classifier-exercise .option-btn:hover {
+      background: #d4ecd4;
+    }
+
+    /* ===== 配對練習專用樣式 ===== */
+    .match-exercise {
+      background: #f9fcff;
+    }
+
+    .match-columns {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .match-column {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .match-column-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f4c5c;
+      text-align: center;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px dashed #b8d4e0;
+      margin-bottom: 0.3rem;
+    }
+
+    .match-item {
+      background: #ffffff;
+      border: 2px solid #c5dde8;
+      border-radius: 18px;
+      padding: 0.8rem 1rem;
+      font-size: 1.05rem;
+      color: #1e3b4f;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      position: relative;
+    }
+
+    .match-item:hover {
+      border-color: #7fb3c7;
+      background: #f0f9ff;
+    }
+
+    .match-item.selected {
+      border-color: #f4b942;
+      background: #fff8e6;
+      box-shadow: 0 0 0 3px rgba(244, 185, 66, 0.25);
+    }
+
+    .match-item.matched {
+      border-color: #2d7a4b;
+      background: #d4edda;
+      color: #155724;
+      cursor: default;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .match-item.matched::after {
+      content: " ✓";
+      font-weight: 700;
+      color: #2d7a4b;
+    }
+
+    .match-item.wrong-flash {
+      animation: wrongFlash 0.4s ease;
+    }
+
+    @keyframes wrongFlash {
+      0% { background: #f8d7da; border-color: #b02a37; }
+      100% { background: #ffffff; border-color: #c5dde8; }
+    }
+
+    .match-progress {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a5a6e;
+    }
+
+    .match-progress .complete-badge {
+      display: inline-block;
+      background: #d4edda;
+      color: #155724;
+      border: 2px solid #9ad4a8;
+      border-radius: 40px;
+      padding: 0.4rem 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ===== 回應按鈕區（共用） ===== */
+    .response-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      min-height: 48px;
+    }
+
+    .feedback-message {
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feedback-message.correct {
+      display: inline-flex;
+      background: #d4edda;
+      color: #155724;
+      border: 2px solid #9ad4a8;
+    }
+
+    .feedback-message.wrong {
+      display: inline-flex;
+      background: #f8d7da;
+      color: #721c24;
+      border: 2px solid #e8a0a6;
+    }
+
+    .retry-btn {
+      background: #f4b942;
+      border: none;
+      color: #1e3b4f;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 4px 8px rgba(200, 140, 30, 0.3);
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .retry-btn:hover {
+      background: #e8a82e;
+      transform: scale(1.03);
+    }
+
+    .retry-btn:active {
+      transform: scale(0.97);
+    }
+
+    .retry-btn.visible {
+      display: inline-flex;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: #5b7e8c;
+      font-size: 0.9rem;
+      border-top: 1px solid #bdd6e2;
+      padding-top: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.7rem; }
+      .tab-btn { font-size: 0.9rem; padding: 0.6rem 1rem; }
+      .word-title { font-size: 1.6rem; }
+      .word-icon { font-size: 2.4rem; }
+      .exercise-sentence { font-size: 1.05rem; }
+      .option-btn { font-size: 0.9rem; padding: 0.4rem 1rem; }
+      .match-columns { flex-direction: column; gap: 1rem; }
+      .match-item { font-size: 0.95rem; padding: 0.6rem 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>第二課 我設計的智能球衣</h1>
+
+  <!-- 頁面切換按鈕 -->
+  <div class="page-tabs">
+    <button class="tab-btn active" data-page="page-cards">📇 詞語卡</button>
+    <button class="tab-btn" data-page="page-fill">✏️ 選詞填充</button>
+    <button class="tab-btn" data-page="page-classifier">🧩 量詞練習</button>
+    <button class="tab-btn" data-page="page-match">🔗 配對練習</button>
+  </div>
+
+  <!-- 頁面1：詞語卡 -->
+  <div id="page-cards" class="page active">
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+  <!-- 頁面2：選詞填充 -->
+  <div id="page-fill" class="page">
+    <div class="exercise-list" id="fillExerciseList"></div>
+  </div>
+
+  <!-- 頁面3：量詞練習 -->
+  <div id="page-classifier" class="page">
+    <div class="exercise-list" id="classifierExerciseList"></div>
+  </div>
+
+  <!-- 頁面4：配對練習 -->
+  <div id="page-match" class="page">
+    <div class="exercise-list" id="matchExerciseList"></div>
+  </div>
+
+  <footer>
+    🌟 第二課 我設計的智能球衣 · 粵語學習
+  </footer>
+
+  <script>
+    (function() {
+      // ---------- 詞語數據 ----------
+      const wordsData = [
+        {
+          word: '智能',
+          icon: '🧠',
+          jyutping: 'zi3 nang4',
+          meaningZh: '智慧和能力；指運用知識和技能解決問題的能力。',
+          meaningEn: 'Intelligence; smart / intelligent.',
+          example: '這部智能手機可以辨認人臉。'
+        },
+        {
+          word: '冬季',
+          icon: '❄️',
+          jyutping: 'dung1 gwai3',
+          meaningZh: '一年四季中最冷的季節，大約在十二月至二月。',
+          meaningEn: 'Winter season.',
+          example: '冬季我們會去滑雪。'
+        },
+        {
+          word: '訓練',
+          icon: '🏋️',
+          jyutping: 'fan3 lin6',
+          meaningZh: '有計劃地進行練習，使技能或體能增強。',
+          meaningEn: 'To train; training.',
+          example: '足球隊每天放學後都進行訓練。'
+        },
+        {
+          word: '圖案',
+          icon: '🎨',
+          jyutping: 'tou4 on3',
+          meaningZh: '由線條、顏色或形狀組成的裝飾性花紋。',
+          meaningEn: 'Pattern; design.',
+          example: '這件衣服上的圖案很漂亮。'
+        },
+        {
+          word: '標誌',
+          icon: '🚸',
+          jyutping: 'biu1 zi3',
+          meaningZh: '用來識別或代表某事物的記號。',
+          meaningEn: 'Sign; symbol; logo.',
+          example: '這個標誌代表前方有學校。'
+        },
+        {
+          word: '精神奕奕',
+          icon: '✨',
+          jyutping: 'zing1 san4 jik6 jik6',
+          meaningZh: '形容精力充沛，容光煥發。',
+          meaningEn: 'Full of energy; vigorous.',
+          example: '他睡了一覺，現在精神奕奕。'
+        },
+        {
+          word: '舒適',
+          icon: '🛋️',
+          jyutping: 'syu1 sik1',
+          meaningZh: '舒服安逸，令人感到輕鬆愉快。',
+          meaningEn: 'Comfortable; cosy.',
+          example: '這張沙發坐起來很舒適。'
+        },
+        {
+          word: '倒霉',
+          icon: '🍀',
+          jyutping: 'dou2 mui4',
+          meaningZh: '運氣不好，遇到不順心的事。',
+          meaningEn: 'Unlucky; bad luck.',
+          example: '我今天真倒霉，忘記帶雨傘。'
+        },
+        {
+          word: '精心',
+          icon: '💝',
+          jyutping: 'zing1 sam1',
+          meaningZh: '特別用心，仔細籌劃。',
+          meaningEn: 'With great care; meticulously.',
+          example: '媽媽精心準備了我的生日派對。'
+        },
+        {
+          word: '獨一無二',
+          icon: '🦄',
+          jyutping: 'duk6 jat1 mou4 ji6',
+          meaningZh: '獨特，與眾不同，沒有相同的。',
+          meaningEn: 'Unique; one of a kind.',
+          example: '每個人的指紋都是獨一無二的。'
+        },
+        {
+          word: '骯髒',
+          icon: '🧹',
+          jyutping: 'ong1 zong1',
+          meaningZh: '不乾淨，有污垢或灰塵。',
+          meaningEn: 'Dirty; filthy.',
+          example: '他的鞋子沾滿泥巴，十分骯髒。'
+        },
+        {
+          word: '按鈕',
+          icon: '🔘',
+          jyutping: 'on3 nau2',
+          meaningZh: '機器或電器上用手按壓的開關。',
+          meaningEn: 'Button (to press).',
+          example: '按一下這個按鈕，燈就會亮。'
+        },
+        {
+          word: '乾爽',
+          icon: '🌵',
+          jyutping: 'gon1 song2',
+          meaningZh: '乾燥清爽，沒有水分。',
+          meaningEn: 'Dry and fresh; not damp.',
+          example: '秋天的天氣十分乾爽。'
+        },
+        {
+          word: '價格',
+          icon: '🏷️',
+          jyutping: 'gaa3 gaak3',
+          meaningZh: '商品的價錢。',
+          meaningEn: 'Price.',
+          example: '這本書的價格很合理。'
+        }
+      ];
+
+      // ---------- 工具函數 ----------
+      function getFillOptions(currentWord, allWords) {
+        const others = allWords.filter(w => w.word !== currentWord.word).map(w => w.word);
+        const shuffled = [...others].sort(() => Math.random() - 0.5);
+        const distractors = shuffled.slice(0, 3);
+        const options = [currentWord.word, ...distractors];
+        return options.sort(() => Math.random() - 0.5);
+      }
+
+      const classifierOptions = ['條', '名', '種', '批'];
+
+      function getClassifierExercise(wordObj) {
+        const manualMap = {
+          '智能': { correct: '種', sentence: '這款手錶有一______智能功能。' },
+          '冬季': { correct: '批', sentence: '廠商推出了一______冬季服裝。' },
+          '訓練': { correct: '種', sentence: '教練設計了一______訓練方法。' },
+          '圖案': { correct: '種', sentence: '布料上印有一______圖案。' },
+          '標誌': { correct: '種', sentence: '這個商標是一______標誌。' },
+          '精神奕奕': { correct: '名', sentence: '他是一______精神奕奕的運動員。' },
+          '舒適': { correct: '條', sentence: '這是一______舒適的褲子。' },
+          '倒霉': { correct: '種', sentence: '今天遇到一______倒霉的事。' },
+          '精心': { correct: '種', sentence: '這是一______精心的安排。' },
+          '獨一無二': { correct: '批', sentence: '他有一______獨一無二的收藏。' },
+          '骯髒': { correct: '條', sentence: '這是一______骯髒的毛巾。' },
+          '按鈕': { correct: '批', sentence: '工廠生產了一______按鈕。' },
+          '乾爽': { correct: '條', sentence: '這是一______乾爽的毛巾。' },
+          '價格': { correct: '種', sentence: '不同商店的商品有各______價格。' }
+        };
+        return manualMap[wordObj.word] || { correct: '種', sentence: '一______事物。' };
+      }
+
+      // ---------- 渲染詞語卡 ----------
+      const grid = document.getElementById('cardsGrid');
+      wordsData.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'word-card';
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="word-title">${item.word}</div>
+            <div class="word-icon">${item.icon}</div>
+          </div>
+          <div class="jyutping-row">
+            <span class="jyutping">${item.jyutping}</span>
+            <button class="speak-btn" aria-label="收聽 ${item.word} 的粵語發音" data-word="${item.word}">🔊</button>
+          </div>
+          <div class="meaning-block">
+            <div class="meaning-zh">${item.meaningZh}</div>
+            <div class="meaning-en">${item.meaningEn}</div>
+          </div>
+          <div class="example">${item.example}</div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // 為所有發音按鈕綁定事件
+      document.querySelectorAll('.speak-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const word = this.dataset.word;
+          speakCantonese(word);
+        });
+      });
+
+      // ---------- 渲染選詞填充頁面（帶回應按鈕） ----------
+      const fillList = document.getElementById('fillExerciseList');
+      wordsData.forEach((item) => {
+        const fillOptions = getFillOptions(item, wordsData);
+        const blankSentence = item.example.replace(item.word, '______');
+        const correctAnswer = item.word;
+
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+
+        const hint = document.createElement('div');
+        hint.className = 'exercise-word-hint';
+        hint.innerHTML = `<span class="hint-icon">📌</span> 提示：${item.meaningZh}`;
+
+        const sentence = document.createElement('div');
+        sentence.className = 'exercise-sentence';
+        sentence.innerHTML = blankSentence.replace('______', '<span class="blank">______</span>');
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+
+        const responseArea = document.createElement('div');
+        responseArea.className = 'response-area';
+
+        const feedbackMsg = document.createElement('span');
+        feedbackMsg.className = 'feedback-message';
+        feedbackMsg.textContent = '';
+
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'retry-btn';
+        retryBtn.innerHTML = '🔄 再來一次';
+
+        let answered = false;
+
+        fillOptions.forEach(optWord => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.textContent = optWord;
+          btn.dataset.correct = (optWord === correctAnswer) ? 'true' : 'false';
+
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (answered) return;
+
+            const isCorrect = this.dataset.correct === 'true';
+
+            optionsDiv.querySelectorAll('.option-btn').forEach(b => {
+              b.classList.remove('selected-correct', 'selected-wrong');
+            });
+
+            if (isCorrect) {
+              this.classList.add('selected-correct');
+              feedbackMsg.textContent = '🎉 答對了！';
+              feedbackMsg.className = 'feedback-message correct';
+              const blankSpan = card.querySelector('.blank');
+              if (blankSpan) blankSpan.textContent = correctAnswer;
+            } else {
+              this.classList.add('selected-wrong');
+              feedbackMsg.textContent = '😢 答錯了，再試一次吧！';
+              feedbackMsg.className = 'feedback-message wrong';
+            }
+
+            retryBtn.classList.add('visible');
+            answered = true;
+          });
+
+          optionsDiv.appendChild(btn);
+        });
+
+        retryBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          answered = false;
+          optionsDiv.querySelectorAll('.option-btn').forEach(b => {
+            b.classList.remove('selected-correct', 'selected-wrong');
+          });
+          const blankSpan = card.querySelector('.blank');
+          if (blankSpan) blankSpan.textContent = '______';
+          feedbackMsg.textContent = '';
+          feedbackMsg.className = 'feedback-message';
+          retryBtn.classList.remove('visible');
+        });
+
+        responseArea.appendChild(feedbackMsg);
+        responseArea.appendChild(retryBtn);
+
+        card.appendChild(hint);
+        card.appendChild(sentence);
+        card.appendChild(optionsDiv);
+        card.appendChild(responseArea);
+        fillList.appendChild(card);
+      });
+
+      // ---------- 渲染量詞練習頁面（帶回應按鈕） ----------
+      const classifierList = document.getElementById('classifierExerciseList');
+      wordsData.forEach((item) => {
+        const classifierInfo = getClassifierExercise(item);
+        const correctClassifier = classifierInfo.correct;
+
+        const card = document.createElement('div');
+        card.className = 'exercise-card classifier-exercise';
+
+        const hint = document.createElement('div');
+        hint.className = 'exercise-word-hint';
+        hint.innerHTML = `<span class="hint-icon">🔤</span> 詞語：${item.word} — 選出正確量詞`;
+
+        const sentence = document.createElement('div');
+        sentence.className = 'exercise-sentence';
+        sentence.innerHTML = classifierInfo.sentence.replace('______', '<span class="blank">______</span>');
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+
+        const responseArea = document.createElement('div');
+        responseArea.className = 'response-area';
+
+        const feedbackMsg = document.createElement('span');
+        feedbackMsg.className = 'feedback-message';
+        feedbackMsg.textContent = '';
+
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'retry-btn';
+        retryBtn.innerHTML = '🔄 再來一次';
+
+        let answered = false;
+
+        classifierOptions.forEach(c => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.textContent = c;
+          btn.dataset.correct = (c === correctClassifier) ? 'true' : 'false';
+
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (answered) return;
+
+            const isCorrect = this.dataset.correct === 'true';
+
+            optionsDiv.querySelectorAll('.option-btn').forEach(b => {
+              b.classList.remove('selected-correct', 'selected-wrong');
+            });
+
+            if (isCorrect) {
+              this.classList.add('selected-correct');
+              feedbackMsg.textContent = '🎉 答對了！';
+              feedbackMsg.className = 'feedback-message correct';
+              const blankSpan = card.querySelector('.blank');
+              if (blankSpan) blankSpan.textContent = correctClassifier;
+            } else {
+              this.classList.add('selected-wrong');
+              feedbackMsg.textContent = '😢 答錯了，再試一次吧！';
+              feedbackMsg.className = 'feedback-message wrong';
+            }
+
+            retryBtn.classList.add('visible');
+            answered = true;
+          });
+
+          optionsDiv.appendChild(btn);
+        });
+
+        retryBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          answered = false;
+          optionsDiv.querySelectorAll('.option-btn').forEach(b => {
+            b.classList.remove('selected-correct', 'selected-wrong');
+          });
+          const blankSpan = card.querySelector('.blank');
+          if (blankSpan) blankSpan.textContent = '______';
+          feedbackMsg.textContent = '';
+          feedbackMsg.className = 'feedback-message';
+          retryBtn.classList.remove('visible');
+        });
+
+        responseArea.appendChild(feedbackMsg);
+        responseArea.appendChild(retryBtn);
+
+        card.appendChild(hint);
+        card.appendChild(sentence);
+        card.appendChild(optionsDiv);
+        card.appendChild(responseArea);
+        classifierList.appendChild(card);
+      });
+
+      // ---------- 渲染配對練習頁面 ----------
+      const matchList = document.getElementById('matchExerciseList');
+
+      // 將詞語分成若干組，每組 4-5 個詞語進行配對
+      function chunkArray(arr, size) {
+        const chunks = [];
+        for (let i = 0; i < arr.length; i += size) {
+          chunks.push(arr.slice(i, i + size));
+        }
+        return chunks;
+      }
+
+      const wordChunks = chunkArray(wordsData, 5); // 每組 5 個，共 3 組 (5+5+4)
+
+      wordChunks.forEach((chunk, chunkIndex) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card match-exercise';
+
+        const title = document.createElement('div');
+        title.className = 'exercise-word-hint';
+        title.innerHTML = `<span class="hint-icon">🔗</span> 配對練習 ${chunkIndex + 1} — 將詞語與正確解釋連起來`;
+
+        const columnsDiv = document.createElement('div');
+        columnsDiv.className = 'match-columns';
+
+        // 左欄：詞語
+        const leftCol = document.createElement('div');
+        leftCol.className = 'match-column';
+        const leftTitle = document.createElement('div');
+        leftTitle.className = 'match-column-title';
+        leftTitle.textContent = '📝 詞語';
+        leftCol.appendChild(leftTitle);
+
+        // 右欄：解釋
+        const rightCol = document.createElement('div');
+        rightCol.className = 'match-column';
+        const rightTitle = document.createElement('div');
+        rightTitle.className = 'match-column-title';
+        rightTitle.textContent = '📖 解釋';
+        rightCol.appendChild(rightTitle);
+
+        // 準備配對資料
+        const leftItems = chunk.map(w => ({ type: 'word', id: w.word, text: w.word }));
+        const rightItems = chunk.map(w => ({ type: 'meaning', id: w.word, text: w.meaningZh }));
+
+        // 打亂右欄順序
+        const shuffledRight = [...rightItems].sort(() => Math.random() - 0.5);
+
+        // 追蹤配對狀態
+        let selectedLeft = null;
+        let selectedRight = null;
+        let matchedCount = 0;
+        const totalPairs = chunk.length;
+
+        // 進度顯示
+        const progressDiv = document.createElement('div');
+        progressDiv.className = 'match-progress';
+        progressDiv.textContent = `已配對：0 / ${totalPairs}`;
+
+        // 檢查配對
+        function checkMatch() {
+          if (selectedLeft && selectedRight) {
+            const leftId = selectedLeft.dataset.id;
+            const rightId = selectedRight.dataset.id;
+
+            if (leftId === rightId) {
+              // 配對成功
+              selectedLeft.classList.add('matched');
+              selectedRight.classList.add('matched');
+              selectedLeft.classList.remove('selected');
+              selectedRight.classList.remove('selected');
+              matchedCount++;
+              progressDiv.textContent = `已配對：${matchedCount} / ${totalPairs}`;
+
+              if (matchedCount === totalPairs) {
+                progressDiv.innerHTML = `已配對：${matchedCount} / ${totalPairs} <br><span class="complete-badge">🎉 全部配對成功！</span>`;
+              }
+            } else {
+              // 配對失敗
+              const leftEl = selectedLeft;
+              const rightEl = selectedRight;
+              leftEl.classList.add('wrong-flash');
+              rightEl.classList.add('wrong-flash');
+              setTimeout(() => {
+                leftEl.classList.remove('wrong-flash', 'selected');
+                rightEl.classList.remove('wrong-flash', 'selected');
+              }, 400);
+            }
+
+            // 重置選擇
+            selectedLeft = null;
+            selectedRight = null;
+          }
+        }
+
+        // 建立左欄項目
+        leftItems.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'match-item';
+          el.dataset.id = item.id;
+          el.dataset.type = 'word';
+          el.textContent = item.text;
+          el.addEventListener('click', function() {
+            if (this.classList.contains('matched')) return;
+
+            // 如果已有選中的左欄，取消它
+            if (selectedLeft) {
+              selectedLeft.classList.remove('selected');
+            }
+            // 如果選中的是同一個，取消選擇
+            if (selectedLeft === this) {
+              selectedLeft = null;
+              return;
+            }
+            selectedLeft = this;
+            this.classList.add('selected');
+
+            // 檢查是否右欄已選
+            if (selectedRight) {
+              checkMatch();
+            }
+          });
+          leftCol.appendChild(el);
+        });
+
+        // 建立右欄項目（打亂順序）
+        shuffledRight.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'match-item';
+          el.dataset.id = item.id;
+          el.dataset.type = 'meaning';
+          el.textContent = item.text;
+          el.addEventListener('click', function() {
+            if (this.classList.contains('matched')) return;
+
+            if (selectedRight) {
+              selectedRight.classList.remove('selected');
+            }
+            if (selectedRight === this) {
+              selectedRight = null;
+              return;
+            }
+            selectedRight = this;
+            this.classList.add('selected');
+
+            if (selectedLeft) {
+              checkMatch();
+            }
+          });
+          rightCol.appendChild(el);
+        });
+
+        columnsDiv.appendChild(leftCol);
+        columnsDiv.appendChild(rightCol);
+        card.appendChild(title);
+        card.appendChild(columnsDiv);
+        card.appendChild(progressDiv);
+        matchList.appendChild(card);
+      });
+
+      // ---------- 頁面切換 ----------
+      const tabs = document.querySelectorAll('.tab-btn');
+      const pages = document.querySelectorAll('.page');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const targetPage = this.dataset.page;
+
+          tabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+
+          pages.forEach(p => p.classList.remove('active'));
+          document.getElementById(targetPage).classList.add('active');
+        });
+      });
+
+      // ---------- 粵語發音 ----------
+      function speakCantonese(text) {
+        if (!window.speechSynthesis) {
+          alert('你的瀏覽器不支援語音合成，請更新瀏覽器。');
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-HK';
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) {
+          setTimeout(() => {
+            const voicesNow = window.speechSynthesis.getVoices();
+            const cantoneseVoice = voicesNow.find(v => v.lang === 'zh-HK' || v.lang === 'yue-HK' || v.lang.includes('HK'));
+            if (cantoneseVoice) utterance.voice = cantoneseVoice;
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+          }, 100);
+        } else {
+          const cantoneseVoice = voices.find(v => v.lang === 'zh-HK' || v.lang === 'yue-HK' || v.lang.includes('HK'));
+          if (cantoneseVoice) utterance.voice = cantoneseVoice;
+          utterance.rate = 0.9;
+          utterance.pitch = 1;
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+
+      if (window.speechSynthesis) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = () => {};
+      }
+    })();
+  </script>
+</body>
+</html>
